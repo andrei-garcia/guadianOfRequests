@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>lista de contatos</title>
+</head>
+<body>
+<table>
+	<thead>
+		<tr>
+			<th>Nome</th>
+			<th>Telefone</th>
+		</tr>
+	</thead>
+	<tbody>
+		<% for contato in @contatos %>
+			<tr>
+				<td><%= nome %></td>
+				<td><%= telefone %></td>
+			</tr>
+		<% end %>
+	</tbody>
+</table>
+<a href="/">HOme</a>	
+</body>
+</html>
