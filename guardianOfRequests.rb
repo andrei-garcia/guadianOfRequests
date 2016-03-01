@@ -3,6 +3,9 @@ require 'sinatra'
 require 'httpclient'
 require 'nokogiri'
 
+#creio que podera virar uma classe depois
+$litaDeToken = {}
+
 def consultaUrl(uri,query,headers)
 	cliente = HTTPClient.new
 	cliente.get(uri,query,headers)
@@ -39,6 +42,12 @@ def atualizaHtmlComToken(document,option = {})
 end
 
 
+
+#enable :sessions
+#set :protection, :except => [:path_traversal, :session_hijacking, :AuthenticityToken, :FormToken, :RemoteToken, :HttpOrigin, :JsonCsrf, :RemoteReferrer]
+disable :protection
+enable :sessions
+
 get '/*' do
 
 	#problemas de encoding, tem que passar o encodin correto no metodo to_html
@@ -50,7 +59,7 @@ get '/*' do
 
 	consulta = consultaUrl("http://#{host}/#{path}",query,headers)	
 	conteudo = consulta.body
-
+	
 	if(ehHTML "#{consulta.headers['Content-Type']}")
 
 		if(temElemento(conteudo,"form"))
@@ -58,8 +67,9 @@ get '/*' do
 			token = geraToken
 			input.set_attribute 'value', token
 			documentoHTML = insereElemento(conteudo,input)
-		 	conteudo = atualizaHtmlComToken(documentoHTML)
+	 		#conteudo = atualizaHtmlComToken(documentoHTML)
 		end	
+
 		 #documentoHTML = Nokogiri::HTML(conteudo)
 		 #inputHidden = documentoHTML.create_element "input"
 		 #inputHidden.set_attribute 'type','hidden'
