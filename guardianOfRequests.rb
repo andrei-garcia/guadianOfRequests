@@ -2,9 +2,14 @@
 require 'sinatra'
 require 'httpclient'
 require 'nokogiri'
+require "securerandom"
+require_relative "listaDeTokens.rb"
+require_relative "Token.rb"
 
 #creio que podera virar uma classe depois
-$litaDeToken = {}
+#$listaDeToken = {}
+#$listaDeToken[:tokens] = []
+$listaDeToken = ListaDeTokens.new
 
 def consultaUrl(uri,query,headers)
 	cliente = HTTPClient.new
@@ -26,14 +31,27 @@ def criaInputHidden()
 	Nokogiri::HTML::Document.new.create_element "input",:type => "hidden",:name => "token"
 end
 
-def insereElemento(html,elemento)
+def insereInputsEmForms(html)
 	documentoHTML = Nokogiri::HTML(html)
-	documentoHTML.root.at("//form").add_next_sibling elemento
-	return documentoHTML
+	documentoHTML.search("form").each do |form|
+		input = criaInputHidden
+		token = geraToken
+		guardaToken(token)
+   		input.set_attribute 'value', token.uuid
+   		form.add_child input
+ 	end
+
+ 	return documentoHTML
+end
+
+def guardaToken(token)
+	$listaDeToken.tokens = token
 end
 
 def geraToken()
-	"falta gerar o token"
+	t = Token.new
+	t.uuid = SecureRandom.uuid
+	return t
 end
 
 def atualizaHtmlComToken(document,option = {})
@@ -47,7 +65,7 @@ end
 #set :protection, :except => [:path_traversal, :session_hijacking, :AuthenticityToken, :FormToken, :RemoteToken, :HttpOrigin, :JsonCsrf, :RemoteReferrer]
 disable :protection
 enable :sessions
-
+$t = 0
 get '/*' do
 
 	#problemas de encoding, tem que passar o encodin correto no metodo to_html
@@ -59,23 +77,15 @@ get '/*' do
 
 	consulta = consultaUrl("http://#{host}/#{path}",query,headers)	
 	conteudo = consulta.body
-	
+	#conteudo = consulta.headers.to_s
 	if(ehHTML "#{consulta.headers['Content-Type']}")
 
 		if(temElemento(conteudo,"form"))
-			input = criaInputHidden
-			token = geraToken
-			input.set_attribute 'value', token
-			documentoHTML = insereElemento(conteudo,input)
-	 		#conteudo = atualizaHtmlComToken(documentoHTML)
+			documentoHTML = insereInputsEmForms(conteudo)
+			#conteudo = documentoHTML.class.to_s
+	 		conteudo = atualizaHtmlComToken(documentoHTML)
 		end	
 
-		 #documentoHTML = Nokogiri::HTML(conteudo)
-		 #inputHidden = documentoHTML.create_element "input"
-		 #inputHidden.set_attribute 'type','hidden'
-		 #inputHidden.set_attribute 'name','token'
-		 #inputHidden.set_attribute 'value','aqui é o valor do token,falta gerar um token'
-		 #documentoHTML.root.at("//form").add_next_sibling "<input value='teste'>"
 	end	
 
 	headers consulta.headers
