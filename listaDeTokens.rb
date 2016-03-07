@@ -1,4 +1,4 @@
-
+#require_relative "Token.rb"
 class ListaDeTokens
 
 	def initialize()
@@ -13,8 +13,13 @@ class ListaDeTokens
 		@tokens.push token
 	end
 
-	def pegarToken(token)
-		@tokens[self.tokens.rindex(token)]
+	def pegarToken(uuid)
+		@tokens.each { |token|
+			if(uuid == token.uuid)
+				return token	
+			end	
+		}
+		return nil
 	end
 
 	def removerToken(token)
@@ -24,7 +29,9 @@ class ListaDeTokens
 end	
 
 #lista = ListaDeTokens.new
-#lista.tokens="1"
+#t = Token.new
+#lista.tokens = t
+#p lista.pegarToken ""
 #lista.tokens="2"
 #lista.removerToken "1"
 #t1 = Time.new
