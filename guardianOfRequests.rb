@@ -16,6 +16,11 @@ def consultaUrl(uri,query,headers)
 	cliente.get(uri,query,headers)
 end
 
+def postarUrl(uri,body,headers)
+	cliente = HTTPClient.new
+	cliente.post(uri,body,headers)
+end
+
 def ehHTML(contentType)
 	contentType == 'text/html'
 end
@@ -75,7 +80,8 @@ get '/*' do
 	path = request.path
 	host = request.host
 
-	consulta = consultaUrl("http://#{host}/#{path}",query,headers)	
+	#verificar o envio dos headers
+	consulta = consultaUrl("http://#{host}/#{path}",query,{"referer" => request.referrer})	
 	conteudo = consulta.body
 	#conteudo = consulta.headers.to_s
 	if(ehHTML "#{consulta.headers['Content-Type']}")
@@ -88,6 +94,22 @@ get '/*' do
 
 	end	
 
+	headers consulta.headers
+   	body << conteudo
+end
+
+post '/*' do
+	
+	path = request.path
+	host = request.host
+	
+	parametros = request.params
+	consulta = postarUrl("http://#{host}/#{path}",parametros,{"referer" => request.referrer})	
+	conteudo = consulta.body
+
+	#tokenPostado = parametros["token"]
+	#conteudo = request.inspect
+	
 	headers consulta.headers
    	body << conteudo
 end
