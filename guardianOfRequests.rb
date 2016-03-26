@@ -1,119 +1,56 @@
 # encoding: UTF-8
-require 'sinatra'
-require 'httpclient'
-require 'nokogiri'
-require "securerandom"
-require_relative "listaDeTokens.rb"
-require_relative "Token.rb"
+require_relative "ProxyBase.rb"
 
-#creio que podera virar uma classe depois
-#$listaDeToken = {}
-#$listaDeToken[:tokens] = []
-$listaDeToken = ListaDeTokens.new
+class GuardianOfRequests 
 
-def consultaUrl(uri,query,headers)
-	cliente = HTTPClient.new
-	cliente.get(uri,query,headers)
-end
-
-def postarUrl(uri,body,headers)
-	cliente = HTTPClient.new
-	cliente.post(uri,body,headers)
-end
-
-def ehHTML(contentType)
-	contentType == 'text/html'
-end
-
-def temElemento(html,elemento)
-	if(Nokogiri::HTML(html).at(elemento).nil?)
-		return false
+	def initialize(options = {})
+		@options = options
+		inicializaOptionsProxyBase
 	end
-	true	
-end
 
-def criaInputHidden()
-	Nokogiri::HTML::Document.new.create_element "input",:type => "hidden",:name => "token"
-end
-
-def insereInputsEmForms(html)
-	documentoHTML = Nokogiri::HTML(html)
-	documentoHTML.search("form").each do |form|
-		input = criaInputHidden
-		token = geraToken
-		guardaToken(token)
-   		input.set_attribute 'value', token.uuid
-   		form.add_child input
- 	end
-
- 	return documentoHTML
-end
-
-def guardaToken(token)
-	$listaDeToken.tokens = token
-end
-
-def geraToken()
-	t = Token.new
-	t.uuid = SecureRandom.uuid
-	return t
-end
-
-def atualizaHtmlComToken(document,option = {})
-	#ver como passar os options para definir encoding e outras coisas
-	document.to_html(:indent => 2,:encoding => 'UTF-8')
-end
-
-
-
-#enable :sessions
-#set :protection, :except => [:path_traversal, :session_hijacking, :AuthenticityToken, :FormToken, :RemoteToken, :HttpOrigin, :JsonCsrf, :RemoteReferrer]
-disable :protection
-enable :sessions
-$t = 0
-get '/*' do
-
-	#problemas de encoding, tem que passar o encodin correto no metodo to_html
-	#lembrar de testar de nao devolveu nulo quando procurar por formulário no metodo at
-
-	query = request.query_string
-	path = request.path
-	host = request.host
-
-	#verificar o envio dos headers
-	consulta = consultaUrl("http://#{host}/#{path}",query,{"referer" => request.referrer})	
-	conteudo = consulta.body
-	#conteudo = consulta.headers.to_s
-	if(ehHTML "#{consulta.headers['Content-Type']}")
-
-		if(temElemento(conteudo,"form"))
-			documentoHTML = insereInputsEmForms(conteudo)
-			#conteudo = documentoHTML.class.to_s
-	 		conteudo = atualizaHtmlComToken(documentoHTML)
+	def options()
+		@options
+	end
+	
+	def inicializaOptionsProxyBase()
+		if(options.instance_of? Hash)
+			options.keys.each do |value|
+				if value == :tempoMaxToken
+					ProxyBase.lista.tempoMaxToken = options[value]
+				elsif value == :tempoVerificacaoTokens
+					ProxyBase.lista.tempoVerificacaoTokens = options[value]
+				else
+					ProxyBase.set value,options[value]
+				end	
+			end 
 		end	
+	end
 
-	end	
+	def start()
+		ProxyBase.run!
+	end
 
-	headers consulta.headers
-   	body << conteudo
 end
 
-post '/*' do
-	
-	path = request.path
-	host = request.host
-	
-	parametros = request.params
-	consulta = postarUrl("http://#{host}/#{path}",parametros,{"referer" => request.referrer})	
-	conteudo = consulta.body
+options = Hash.new
+#options[:port]= 4499
+#options[:tempoMaxToken] = 1
+#options[:tempoVerificacaoTokens] = "10s"
 
-	#tokenPostado = parametros["token"]
-	#conteudo = request.inspect
-	
-	headers consulta.headers
-   	body << conteudo
-end
+proxy = GuardianOfRequests.new options
+#proxy.tempoVerificacaoTokens
+proxy.start
+#tempo = Time.new
+#		  	tempo = (tempo.hour*60)+tempo.min+((tempo.sec/60))
+#ProxyBase.lista.tokens = Token.new
+#ProxyBase.lista.tokens.each do |token|
+#				p token
+#				p tempo
+#				p token.time
+#		  		if (tempo - token.time) == 0
+#		  			p "entre aqui"
+#		  			ProxyBase.lista.removerToken token
+#		  		end	
+#		  	end	
 
-  
-
-
+#p ProxyBase.lista.tokens
