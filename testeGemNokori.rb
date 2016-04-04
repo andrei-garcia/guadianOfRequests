@@ -16,12 +16,15 @@ require 'open-uri'
 #puts html_arq.xpath "//h1"
 #puts html_doc.xpath "//h1".to_s
 
+
+
 doc = Nokogiri::HTML(File.open("/var/www/html/form.html"))
 h1 = doc.create_element "h1"
 #puts h1.class
 doc.root.at("//form").add_next_sibling h1
 puts doc
 h3 = Nokogiri::XML::Node.new "h3", doc
+
 
 #form = doc.search("//form")
 #form2 = doc.at("//form")

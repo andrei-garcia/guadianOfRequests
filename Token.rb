@@ -1,9 +1,9 @@
 require "securerandom"
+
 class Token
 
-	def initialize()
-		t = Time.new
-		@time = (t.hour*60)+t.min+((t.sec/60))
+	def initialize(dataHoraAtualEmMinutos)
+		@time = dataHoraAtualEmMinutos
 		@uuid = SecureRandom.uuid
 		@expirado = false
 	end
@@ -33,4 +33,3 @@ class Token
 	end
 
 end
-

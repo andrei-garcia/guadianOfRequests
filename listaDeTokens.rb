@@ -3,11 +3,11 @@ require 'rufus-scheduler'
 #require "securerandom"
 class ListaDeTokens
 
-	def initialize()
+	def initialize(tempoMaximoToken = 1,tempoParaVerificarOsTokens = "10s")
 		@tokens = []
-		@tempoMaxToken = 15
-		@tempoVerificacaoTokens = '10s'
-		self.iniciarVerificacaoTokensExpirados
+		@tempoMaxToken = tempoMaximoToken
+		@tempoVerificacaoTokens = tempoParaVerificarOsTokens
+		iniciarVerificacaoEremocaoTokensExpirados
 	end
 
 	def tempoVerificacaoTokens
@@ -18,7 +18,7 @@ class ListaDeTokens
 		@tempoVerificacaoTokens = tempo
 	end
 
-	def iniciarVerificacaoTokensExpirados
+	def iniciarVerificacaoEremocaoTokensExpirados
 		scheduler = Rufus::Scheduler.new
 		scheduler.repeat tempoVerificacaoTokens do
 			time = Time.new
@@ -57,8 +57,15 @@ class ListaDeTokens
 		@tokens.push token
 	end
 
-	def tempoMaxToken=(token)
-		@tempoMaxToken = token
+	def tempoMaxToken=(tempo)
+		@tempoMaxToken = tempo
+	end
+
+	def gerarTokens(quantos,dataHoraEmMinutos)
+		 Array.new(quantos){|indice,elemento|
+		 	self.tokens = (token = Token.new dataHoraEmMinutos) 
+		 	elemento = token.uuid
+		 }
 	end
 
 	def pegarToken(uuid)
@@ -74,21 +81,5 @@ class ListaDeTokens
 		@tokens.delete token
 	end
 
-end	
-
-#lista = ListaDeTokens.new
-#t = Token.new
-#lista.tokens = t
-#lista.removerToken t
-#p lista
-#lista.tokens="2"
-#lista.removerToken "1"
-#t1 = Time.new
-#t2 = Time.new
-
-#puts t2.hour
-#puts t2.min
-#puts t2.sec
-#t  = (t2.hour*60)+t2.min+((t2.sec/60))
-#puts t
-#puts (1355 - t)
+	private :iniciarVerificacaoEremocaoTokensExpirados
+end

@@ -5,52 +5,45 @@ class GuardianOfRequests
 
 	def initialize(options = {})
 		@options = options
-		inicializaOptionsProxyBase
+		configuraOptionsProxyBase
 	end
 
 	def options()
 		@options
 	end
 	
-	def inicializaOptionsProxyBase()
+	def configuraOptionsProxyBase()
 		if(options.instance_of? Hash)
+			configuracoesLista = {:tempoMaxToken => 1,:tempoParaVerificarOsTokens => "10s"}
+			if options.key? :tempoMaxToken
+				configuracoesLista[:tempoMaxToken] = options[:tempoMaxToken]
+			end
+
+			if options.key? :tempoParaVerificarOsTokens
+				configuracoesLista[:tempoParaVerificarOsTokens] = options[:tempoParaVerificarOsTokens]
+			end
+
+			ProxyBase.set :lista , ListaDeTokens.new(configuracoesLista[:tempoMaxToken],configuracoesLista[:tempoParaVerificarOsTokens])		
+
 			options.keys.each do |value|
-				if value == :tempoMaxToken
-					ProxyBase.lista.tempoMaxToken = options[value]
-				elsif value == :tempoVerificacaoTokens
-					ProxyBase.lista.tempoVerificacaoTokens = options[value]
-				else
-					ProxyBase.set value,options[value]
-				end	
-			end 
+				ProxyBase.set value,options[value]
+			end
+		else
+			ProxyBase.set :lista , ListaDeTokens.new
 		end	
+			
 	end
 
 	def start()
 		ProxyBase.run!
 	end
 
+	private :configuraOptionsProxyBase
 end
 
 options = Hash.new
-#options[:port]= 4499
-#options[:tempoMaxToken] = 1
-#options[:tempoVerificacaoTokens] = "10s"
+options[:tempoMaxToken] = 1
+options[:tempoParaVerificarOsTokens] = "10s"
 
 proxy = GuardianOfRequests.new options
-#proxy.tempoVerificacaoTokens
 proxy.start
-#tempo = Time.new
-#		  	tempo = (tempo.hour*60)+tempo.min+((tempo.sec/60))
-#ProxyBase.lista.tokens = Token.new
-#ProxyBase.lista.tokens.each do |token|
-#				p token
-#				p tempo
-#				p token.time
-#		  		if (tempo - token.time) == 0
-#		  			p "entre aqui"
-#		  			ProxyBase.lista.removerToken token
-#		  		end	
-#		  	end	
-
-#p ProxyBase.lista.tokens
