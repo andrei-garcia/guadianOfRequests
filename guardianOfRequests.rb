@@ -13,8 +13,10 @@ class GuardianOfRequests
 	end
 	
 	def configuraOptionsProxyBase()
+		configuracoesLista = {:tempoMaxToken => 1,:tempoParaVerificarOsTokens => "10s"}
+
 		if(options.instance_of? Hash)
-			configuracoesLista = {:tempoMaxToken => 1,:tempoParaVerificarOsTokens => "10s"}
+
 			if options.key? :tempoMaxToken
 				configuracoesLista[:tempoMaxToken] = options[:tempoMaxToken]
 			end
@@ -23,15 +25,13 @@ class GuardianOfRequests
 				configuracoesLista[:tempoParaVerificarOsTokens] = options[:tempoParaVerificarOsTokens]
 			end
 
-			ProxyBase.set :lista , ListaDeTokens.new(configuracoesLista[:tempoMaxToken],configuracoesLista[:tempoParaVerificarOsTokens])		
-
 			options.keys.each do |value|
 				ProxyBase.set value,options[value]
 			end
-		else
-			ProxyBase.set :lista , ListaDeTokens.new
-		end	
-			
+
+		end
+
+		ProxyBase.set :lista , ListaDeTokens.new(configuracoesLista[:tempoMaxToken],configuracoesLista[:tempoParaVerificarOsTokens])
 	end
 
 	def start()
@@ -43,7 +43,7 @@ end
 
 options = Hash.new
 options[:tempoMaxToken] = 1
-options[:tempoParaVerificarOsTokens] = "10s"
+options[:tempoParaVerificarOsTokens] = "1s"
 
 proxy = GuardianOfRequests.new options
 proxy.start

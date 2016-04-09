@@ -12,16 +12,16 @@ class Token
 		@time
 	end
 
+	def time=(time)
+		@time = time
+	end
+
 	def expirado
 		@expirado
 	end
 
 	def expirado=(valor)
 		@expirado = valor
-	end
-
-	def time=(time)
-		@time = time
 	end
 
 	def uuid

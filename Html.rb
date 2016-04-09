@@ -39,10 +39,16 @@ class Html
 	 	numeroDeForms
 	end		
 
-	def geraHtmlRetorno(documento,option = {})
+	def geraHtmlRetorno(documento,options = {})
 		#ver como passar os options para definir encoding e outras coisas
 		documento.to_html(:indent => 2,:encoding => 'UTF-8')
 	end
 	
 	private :parsing,:criaInputHidden
 end
+
+#a = Html.new
+
+#b = a.geraHtmlRetorno(Nokogiri::HTML("<h1> adadada</h1>"))
+
+#p b.class

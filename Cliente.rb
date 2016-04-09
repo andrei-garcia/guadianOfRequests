@@ -5,11 +5,15 @@ class Cliente
 		@cliente = HTTPClient.new
 	end
 
-	def consultarUrl(uri,query)
-		@cliente.get(uri,query)
+	def consultarUrl(url,query)
+		@cliente.get(url,query)
 	end
 
-	def postarUrl(uri,body,headers)
-		@cliente.post(uri,body,headers)
+	def postarUrl(url,body,headers)
+		@cliente.post(url,body,headers)
 	end
 end
+
+#a = HTTPClient.new
+#b = a.get("http://google.com.br")
+#p b.class

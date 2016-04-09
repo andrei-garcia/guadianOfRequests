@@ -7,7 +7,7 @@ class ListaDeTokens
 		@tokens = []
 		@tempoMaxToken = tempoMaximoToken
 		@tempoVerificacaoTokens = tempoParaVerificarOsTokens
-		iniciarVerificacaoEremocaoTokensExpirados
+		excluiTokensExpirados
 	end
 
 	def tempoVerificacaoTokens
@@ -18,7 +18,7 @@ class ListaDeTokens
 		@tempoVerificacaoTokens = tempo
 	end
 
-	def iniciarVerificacaoEremocaoTokensExpirados
+	def excluiTokensExpirados()
 		scheduler = Rufus::Scheduler.new
 		scheduler.repeat tempoVerificacaoTokens do
 			time = Time.new
@@ -49,12 +49,12 @@ class ListaDeTokens
 		@tokens
 	end
 
-	def tempoMaxToken
-		@tempoMaxToken
-	end
-
 	def tokens=(token)
 		@tokens.push token
+	end
+
+	def tempoMaxToken
+		@tempoMaxToken
 	end
 
 	def tempoMaxToken=(tempo)
@@ -81,5 +81,5 @@ class ListaDeTokens
 		@tokens.delete token
 	end
 
-	private :iniciarVerificacaoEremocaoTokensExpirados
+	private :excluiTokensExpirados
 end
