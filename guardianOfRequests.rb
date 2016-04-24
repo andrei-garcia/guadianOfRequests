@@ -40,10 +40,3 @@ class GuardianOfRequests
 
 	private :configuraOptionsProxyBase
 end
-
-options = Hash.new
-options[:tempoMaxToken] = 1
-options[:tempoParaVerificarOsTokens] = "1s"
-
-proxy = GuardianOfRequests.new options
-proxy.start

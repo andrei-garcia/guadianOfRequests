@@ -10,10 +10,6 @@ class Cliente
 	end
 
 	def postarUrl(url,body,headers)
-		@cliente.post(url,body,headers)
+		con = @cliente.post(url,body,headers)
 	end
 end
-
-#a = HTTPClient.new
-#b = a.get("http://google.com.br")
-#p b.class

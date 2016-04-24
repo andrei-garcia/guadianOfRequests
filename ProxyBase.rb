@@ -51,7 +51,7 @@ class ProxyBase < Sinatra::Base
 			end	
 
 		end	
-
+		status consulta.status
 		headers consulta.headers
 	   	body << conteudo
 	end
@@ -64,32 +64,35 @@ class ProxyBase < Sinatra::Base
 		
 		parametros = request.params
 		negarPost = true
-
-		if parametros.has_key? "token"
+		
+		if request.xhr?
+			negarPost = false
+		elsif parametros.has_key? "token"
 			token = listaDeTokens.pegarToken parametros["token"]
 			if !token.nil?
 				listaDeTokens.removerToken token
 				if !token.expirado
-					consulta = cliente.postarUrl("http://#{host}/#{path}",parametros,{'referer' => request.referrer})
-					conteudo = consulta.body
-					conHeaders = consulta.headers
 					negarPost = false
 					#creio que tem q validar a resposta para ver se tem form, para injetar token tb
 				end 
 			end	
-
 		end
-
+		
 		if negarPost
 			status 403
 			conHeaders = {"permissao" => "permissão negada"}
 			conteudo = erb :erroPermissao, :format => :html5
+		else
+			consulta = cliente.postarUrl("http://#{host}/#{path}",parametros,{'referer' => request.referrer})
+			status consulta.status
+			conteudo = consulta.body
+			conHeaders = consulta.headers
 		end	
 
 		#tokenPostado = parametros["token"]
 		#conteudo = parametros.inspect
 		headers conHeaders
-	   	body << conteudo 
+	   	body <<  conteudo
 	end
 
     private :html,:cliente,:listaDeTokens,:dataHoraAtual
