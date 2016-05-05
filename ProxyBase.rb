@@ -38,12 +38,14 @@ class ProxyBase < Sinatra::Base
 		path = request.path
 		host = request.host
 		query = request.query_string
-		#verificar o envio dos headers
-		consulta = cliente.consultarUrl("http://#{host}/#{path}",query)	
-		conteudo = consulta.body
-		#conteudo = consulta.headers.to_s
-		if(html.ehHTML "#{consulta.headers['Content-Type']}")
 
+		scheme = request.scheme
+		origemConsulta = "#{scheme}://#{host}"
+		#verificar o envio dos headers
+		consulta = cliente.consultarUrl("#{origemConsulta}#{path}",query)	
+		conteudo = consulta.body
+		
+		if(html.ehHTML "#{consulta.headers['Content-Type']}")
 			if(html.possuiElemento(conteudo,"form"))
 				tokensGerados = listaDeTokens.gerarTokens(html.numeroDeFormularios(conteudo),dataHoraAtual.emMinutos)
 				documentoHTML = html.insereInputNosFormularios(conteudo,tokensGerados)
@@ -53,13 +55,15 @@ class ProxyBase < Sinatra::Base
 		end	
 		status consulta.status
 		headers consulta.headers
-	   	body << conteudo
+	    body << conteudo
+	    #body << consulta.headers.inspect
 	end
 
 	post '/*' do
 		
 		path = request.path
 		host = request.host
+		scheme = request.scheme
 		tempoAtualPost = dataHoraAtual.emMinutos
 		
 		parametros = request.params
@@ -73,7 +77,6 @@ class ProxyBase < Sinatra::Base
 				listaDeTokens.removerToken token
 				if !token.expirado
 					negarPost = false
-					#creio que tem q validar a resposta para ver se tem form, para injetar token tb
 				end 
 			end	
 		end
@@ -83,16 +86,15 @@ class ProxyBase < Sinatra::Base
 			conHeaders = {"permissao" => "permissão negada"}
 			conteudo = erb :erroPermissao, :format => :html5
 		else
-			consulta = cliente.postarUrl("http://#{host}/#{path}",parametros,{'referer' => request.referrer})
+			consulta = cliente.postarUrl("#{scheme}://#{host}/#{path}",parametros,{'referer' => request.referrer})
+			#creio que tem q validar a resposta para ver se tem form, para injetar token tb
 			status consulta.status
 			conteudo = consulta.body
 			conHeaders = consulta.headers
 		end	
 
-		#tokenPostado = parametros["token"]
-		#conteudo = parametros.inspect
 		headers conHeaders
-	   	body <<  conteudo
+	    body <<  conteudo	   	
 	end
 
     private :html,:cliente,:listaDeTokens,:dataHoraAtual

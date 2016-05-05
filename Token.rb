@@ -6,6 +6,7 @@ class Token
 		@time = dataHoraAtualEmMinutos
 		@uuid = SecureRandom.uuid
 		@expirado = false
+		@origem = ""
 	end
 
 	def time
@@ -30,6 +31,14 @@ class Token
 
 	def uuid=(id)
 		@uuid = id
+	end
+
+	def origem
+		@origem
+	end
+
+	def origem=(origem)
+		@origem = origem
 	end
 
 end
