@@ -5,11 +5,12 @@ class Cliente
 		@cliente = HTTPClient.new
 	end
 
-	def consultarUrl(url,query)
-		@cliente.get(url,query)
+	def consultarUrl(url,query,headers)
+		@cliente.get(url,query,headers)
 	end
 
-	def postarUrl(url,body,headers)
-		con = @cliente.post(url,body,headers)
+	def postarUrl(url,parametros,headers)
+		con = @cliente.post(url,parametros,headers)
 	end
+
 end

@@ -1,26 +1,57 @@
-# encoding: UTF-8
-# require 'httpclient'
+#a = "x-www-form-urlencoded"
 
 
 
+#if a[/x-www-form-urlencoded$|form-data/].nil?
+# p 	"return false"
+#else	
+# p 	"return true"
+#end	
+=begin
+require 'httpclient'
 
-# 	clnt = HTTPClient.new
+params = {"arquivo"=>{:filename=>"apresentacao_final.odt_revisar.odp", :type=>"application/vnd.oasis.opendocument.presentation", :name=>"arquivo", :tempfile=>"teste.html", :head=>"Content-Disposition: form-data; name=\"arquivo\"; filename=\"apresentacao_final.odt_revisar.odp\"\r\nContent-Type: application/vnd.oasis.opendocument.presentation\r\n"}, "token"=>"742fd935-6d8d-46e9-b7ea-86a466d2054c", "splat"=>["academico/enviarImagem.php"], "captures"=>["academico/enviarImagem.php"]}
+
+parametros = {}
+
+params.each {|key,value|
+	p value
+	if value.instance_of? Hash
+		#abrir o arquivo aqui
+		parametros["key"] = 
+			File.open(value[:filename],"wb") do |f|
+    			f.write(value[:tempfile].read)
+  			end
+	else
+		parametros["key"] = value
+	end	
+}
+=end
+
+#r = {"arquivo" => {}}
+#p a[/^x-www-form-urlencoded$/].nil?
+
+#c = HTTPClient.new
 	
-# 	o = clnt.get("http://localhost/index.html")
+#con = c.post("http://localhost/academico/enviarImagem.php",{'arquivo' => File.new('teste.html')},{'dasda' => "adsa"})
 
-	# p o.content
-	# p o.headers
-	# o.headers.each do |k, v|
-	#  	puts "#{k} -> #{v}"
-	# end
-   # p o.body
+#p con.body
 
 
-a = "<html>\n<head>\n\t<link rel=\"stylesheet\" type=\"text/css\" href=\"css/estilo.css\">\n</head>\n<body>\n <h1>Teste do andreiikk</h1>\n <img src=\"cats.jpg\">\n <form onsubmit=\"teste.html\">\n \t<input type=\"text\">\n \t<button>teste</button>\n </form>\n<body>\n</html>\n"
+#a = File.new("adas.jpg","w")
+#a.close
+#b = File.open(a){|f| f.write f.read}
+#File.open(a)
+#p File.open(a).class
 
-b = a.index /<form\s*(.)*>?/im
+arquivosEnviados = Array.new
+dados = {"tempo" => 30,"arquivo" => "teste"}
+arquivosEnviados.push dados
 
-p b
+arquivosEnviados.each {|value|
+	p value["arquivo"]
+}
 
-p a = {a: 0}
-p a[:a]
+
+
+

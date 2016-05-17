@@ -24,22 +24,17 @@ class ListaDeTokens
 			time = Time.new
 		  	tempoAtualEmMinutos = (time.hour*60)+time.min+((time.sec/60))
 		  	
-			p "tempo criado #{tempoAtualEmMinutos}"
+			#p "tempo criado #{tempoAtualEmMinutos}"
 		  	tokens.each do |token|
-		  		p "entrei aqui"
-		  		p "tempo token #{token.time}"
-		  		t = tempoAtualEmMinutos - token.time
-		  		p "tempo decrementado #{t}"
-		  		p "tempo maximo do token #{tempoMaxToken}"
-		  		p "token expirado #{token.expirado}"
-		  		if token.expirado
-		  			p "token ja esta expirado e foi removido.."
-		  		    removerToken token
-		  		elsif (tempoAtualEmMinutos - token.time) >= tempoMaxToken
-		  			p "entrei para colocar como expirado"
-		  			#pegarToken(token.uuid).expirado = true
-		  			token.expirado = true
-		  			#removerToken token
+		  		#p "entrei aqui"
+		  		#p "tempo token #{token.time}"
+		  		#t = tempoAtualEmMinutos - token.time
+		  		#p "tempo decrementado #{t}"
+		  		#p "tempo maximo do token #{tempoMaxToken}"
+		  		#p "token expirado #{token.expirado}"
+		  		if (tempoAtualEmMinutos - token.time) >= tempoMaxToken
+		  			removerToken token
+		  			#p "entrei para remover token expirado"
 		  		end	
 		  	end	
 		end
@@ -61,9 +56,9 @@ class ListaDeTokens
 		@tempoMaxToken = tempo
 	end
 
-	def gerarTokens(quantos,dataHoraEmMinutos)
+	def gerarTokens(quantos,dataHoraEmMinutos,host)
 		 Array.new(quantos){|indice,elemento|
-		 	self.tokens = (token = Token.new dataHoraEmMinutos) 
+		 	self.tokens = (token = Token.new dataHoraEmMinutos,host) 
 		 	elemento = token.uuid
 		 }
 	end

@@ -6,6 +6,7 @@ class Html
 		contentType == 'text/html'
 	end
 
+	
 	def possuiElemento(html,elemento)
 		if(Nokogiri::HTML(html).at(elemento).nil?)
 			return false

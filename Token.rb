@@ -2,11 +2,11 @@ require "securerandom"
 
 class Token
 
-	def initialize(dataHoraAtualEmMinutos)
+	def initialize(dataHoraAtualEmMinutos,host)
 		@time = dataHoraAtualEmMinutos
 		@uuid = SecureRandom.uuid
 		@expirado = false
-		@origem = ""
+		@host = host
 	end
 
 	def time
@@ -33,12 +33,12 @@ class Token
 		@uuid = id
 	end
 
-	def origem
-		@origem
+	def host
+		@host
 	end
 
-	def origem=(origem)
-		@origem = origem
+	def host=(host)
+		@host = host
 	end
 
 end
