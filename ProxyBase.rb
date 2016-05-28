@@ -59,20 +59,26 @@ class ProxyBase < Sinatra::Base
 
 	def limpaArquivosTemporarios()
 		arquivosEnviados.each {|value|
-			File.delete(value["arquivo"]) 	
+			if(File.file?(value["arquivo"]))
+				File.delete(value["arquivo"]) 
+			end	
 		}
+		arquivosEnviados.clear
 	end
 
-	def defineConteudoDaResposta(body,conteudo)
-		body << conteudo
-	end
-
-	def defineHeadersDaResposta(headers,headersDaConsulta)
-		headers headersDaConsulta
-	end
-
-	def defineStatusDaResposta(status,statusDaConsulta)
-		status statusDaConsulta
+	def podePostar(ehAjax,parametrosRecebidosPost,tempoAtualPost,host)
+		negarPost = false
+		if ehAjax
+			negarPost = true
+		elsif parametrosRecebidosPost.has_key? "token"
+			token = listaDeTokens.pegarToken parametrosRecebidosPost["token"]			
+			if !token.nil?
+				if((tempoAtualPost - token.time) < listaDeTokens.tempoMaxToken) && token.host == host
+					negarPost = true
+				end
+			end	
+		end
+		negarPost
 	end
 
 	get '/*' do
@@ -80,13 +86,13 @@ class ProxyBase < Sinatra::Base
 		cabecalhosDeConsulta = request.env 
 		host = request.host
 		query = request.query_string
-		url = "#{request.scheme}://#{host}#{request.path}";
+		url = "#{request.scheme}://#{host}#{request.path}"
 		
 		consulta = cliente.consultarUrl(url,query,cabecalhosDeConsulta)
 		conteudo = consulta.body
-		tipoConteudoRetornado = consulta.headers['Content-Type']
+		contentType = consulta.headers['Content-Type']
 		
-		if(html.ehHTML tipoConteudoRetornado)
+		if(html.ehHTML contentType)
 			if(html.possuiElemento(conteudo,"form"))
 				tokensGerados = listaDeTokens.gerarTokens(html.numeroDeFormularios(conteudo),dataHoraAtual.emMinutos,host)
 				documentoHTML = html.insereInputNosFormularios(conteudo,tokensGerados)
@@ -94,53 +100,32 @@ class ProxyBase < Sinatra::Base
 			end	
 		end	
 
-		#status consulta.status
-		#headers consulta.headers
-		#body << conteudo
-
-		defineStatusDaResposta status,consulta.status
-		defineHeadersDaResposta headers,consulta.headers
-		defineConteudoDaResposta body,conteudo
-	   
+		status consulta.status
+		headers consulta.headers
+		body << conteudo
 	end
 
 	post '/*' do
-		
+
+		cabecalhosDeConsulta = request.env 
 		path = request.path
+		ehAjax = request.xhr?
 		host = request.host
-		scheme = request.scheme
 		tempoAtualPost = dataHoraAtual.emMinutos
-		
+		url = "#{request.scheme}://#{host}#{path}"
 		parametros = montaParametrosParaPost request.params
 		
-		negarPost = true
-
-		if request.xhr?
-			negarPost = false
-		elsif parametros.has_key? "token"
-
-			token = listaDeTokens.pegarToken parametros["token"]			
-			if !token.nil?
-				p host
-				p token.host
-				if((tempoAtualPost - token.time) < listaDeTokens.tempoMaxToken) && token.host == host
-					negarPost = false
-				end
-				listaDeTokens.removerToken token 
-			end	
-		end
 		
-		if negarPost
-			status 403
-			conHeaders = {"permissão" => "permissão negada"}
-			conteudo = erb :erroPermissao, :format => :html5
-		else
+		if podePostar(request.xhr?,parametros,tempoAtualPost,host)
+			token = listaDeTokens.pegarToken parametros["token"]
+			listaDeTokens.removerToken token
 			parametros.delete "token"
-			consulta = cliente.postarUrl("#{scheme}://#{host}#{path}",parametros,request.env)
+			consulta = cliente.postarUrl(url,parametros,cabecalhosDeConsulta)
 			limpaArquivosTemporarios
-			#criar uma tread para limpar os arquivos enviados para nao limpar toda hora
+			contentType = consulta.headers['Content-Type']
+			conteudo = consulta.body
 
-			if(html.ehHTML "#{consulta.headers['Content-Type']}")
+			if(html.ehHTML contentType)
 				if(html.possuiElemento(conteudo,"form"))
 					tokensGerados = listaDeTokens.gerarTokens(html.numeroDeFormularios(conteudo),dataHoraAtual.emMinutos,host)
 					documentoHTML = html.insereInputNosFormularios(conteudo,tokensGerados)
@@ -149,8 +134,11 @@ class ProxyBase < Sinatra::Base
 			end	
 			
 			status consulta.status
-			conteudo = consulta.body
 			conHeaders = consulta.headers
+		else
+			status 403
+			conHeaders = {}
+			conteudo = erb :erroPermissao, :format => :html5	
 		end	
 
 		headers conHeaders

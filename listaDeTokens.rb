@@ -23,7 +23,7 @@ class ListaDeTokens
 		scheduler.repeat tempoVerificacaoTokens do
 			time = Time.new
 		  	tempoAtualEmMinutos = (time.hour*60)+time.min+((time.sec/60))
-		  	
+
 			#p "tempo criado #{tempoAtualEmMinutos}"
 		  	tokens.each do |token|
 		  		#p "entrei aqui"
@@ -35,8 +35,8 @@ class ListaDeTokens
 		  		if (tempoAtualEmMinutos - token.time) >= tempoMaxToken
 		  			removerToken token
 		  			#p "entrei para remover token expirado"
-		  		end	
-		  	end	
+		  		end
+		  	end
 		end
 	end
 
@@ -58,7 +58,7 @@ class ListaDeTokens
 
 	def gerarTokens(quantos,dataHoraEmMinutos,host)
 		 Array.new(quantos){|indice,elemento|
-		 	self.tokens = (token = Token.new dataHoraEmMinutos,host) 
+		 	self.tokens = (token = Token.new dataHoraEmMinutos,host)
 		 	elemento = token.uuid
 		 }
 	end
@@ -66,8 +66,8 @@ class ListaDeTokens
 	def pegarToken(uuid)
 		@tokens.each { |token|
 			if(uuid == token.uuid)
-				return token	
-			end	
+				return token
+			end
 		}
 		return nil
 	end

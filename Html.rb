@@ -47,9 +47,3 @@ class Html
 	
 	private :parsing,:criaInputHidden
 end
-
-#a = Html.new
-
-#b = a.geraHtmlRetorno(Nokogiri::HTML("<h1> adadada</h1>"))
-
-#p b.class

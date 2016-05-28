@@ -44,6 +44,7 @@ params.each {|key,value|
 #File.open(a)
 #p File.open(a).class
 
+=begin
 arquivosEnviados = Array.new
 dados = {"tempo" => 30,"arquivo" => "teste"}
 arquivosEnviados.push dados
@@ -51,6 +52,19 @@ arquivosEnviados.push dados
 arquivosEnviados.each {|value|
 	p value["arquivo"]
 }
+=end
+
+
+class Teste 
+	
+	def teste(*args)
+		p args
+	end	
+	
+end
+a = "adas"
+
+Teste.new.teste 1,a,Time.new
 
 
 

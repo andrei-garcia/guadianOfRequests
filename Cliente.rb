@@ -10,7 +10,7 @@ class Cliente
 	end
 
 	def postarUrl(url,parametros,headers)
-		con = @cliente.post(url,parametros,headers)
+		@cliente.post(url,parametros,headers)
 	end
 
 end
