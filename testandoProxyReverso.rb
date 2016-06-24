@@ -1,8 +1,6 @@
 
 require_relative "guardianOfRequests.rb"
 
-
-
 options = Hash.new
 options[:tempoMaxToken] = 15
 options[:bind] = '127.0.0.1'

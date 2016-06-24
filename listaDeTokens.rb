@@ -1,9 +1,9 @@
 require_relative "Token.rb"
 require 'rufus-scheduler'
-#require "securerandom"
+
 class ListaDeTokens
 
-	def initialize(tempoMaximoToken = 1,tempoParaVerificarOsTokens = "10s")
+	def initialize(tempoMaximoToken = 60,tempoParaVerificarOsTokens = "10s")
 		@tokens = []
 		@tempoMaxToken = tempoMaximoToken
 		@tempoVerificacaoTokens = tempoParaVerificarOsTokens
@@ -23,18 +23,9 @@ class ListaDeTokens
 		scheduler.repeat tempoVerificacaoTokens do
 			time = Time.new
 		  	tempoAtualEmMinutos = (time.hour*60)+time.min+((time.sec/60))
-
-			#p "tempo criado #{tempoAtualEmMinutos}"
 		  	tokens.each do |token|
-		  		#p "entrei aqui"
-		  		#p "tempo token #{token.time}"
-		  		#t = tempoAtualEmMinutos - token.time
-		  		#p "tempo decrementado #{t}"
-		  		#p "tempo maximo do token #{tempoMaxToken}"
-		  		#p "token expirado #{token.expirado}"
 		  		if (tempoAtualEmMinutos - token.time) >= tempoMaxToken
 		  			removerToken token
-		  			#p "entrei para remover token expirado"
 		  		end
 		  	end
 		end
