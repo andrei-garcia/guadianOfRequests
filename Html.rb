@@ -41,7 +41,6 @@ class Html
 	end		
 
 	def geraHtmlRetorno(documento,options = {})
-		#ver como passar os options para definir encoding e outras coisas
 		documento.to_html(:indent => 2,:encoding => 'UTF-8')
 	end
 	

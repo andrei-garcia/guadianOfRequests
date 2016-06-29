@@ -73,9 +73,7 @@ class ProxyBase < Sinatra::Base
 		elsif parametrosRecebidosPost.has_key? "token"
 			token = listaDeTokens.pegarToken parametrosRecebidosPost["token"]			
 			if !token.nil?
-				if((tempoAtualPost - token.time) < 
-					listaDeTokens.tempoMaxToken)
-					 && token.host == host
+				if((tempoAtualPost - token.time) < listaDeTokens.tempoMaxToken) && token.host == host
 					negarPost = true
 				end
 			end	
@@ -84,7 +82,6 @@ class ProxyBase < Sinatra::Base
 	end
 
 	get '/*' do
-		#problemas de encoding, tem que passar o encodin correto no metodo to_html
 		cabecalhosDeConsulta = request.env 
 		host = request.host
 		query = request.query_string
@@ -122,23 +119,15 @@ class ProxyBase < Sinatra::Base
 			token = listaDeTokens.pegarToken parametros["token"]
 			listaDeTokens.removerToken token
 			parametros.delete "token"
-			consulta = cliente.postarUrl(url,parametros,
-				cabecalhosDeConsulta
-			)
+			consulta = cliente.postarUrl(url,parametros, cabecalhosDeConsulta)
 			limpaArquivosTemporarios
 			contentType = consulta.headers['Content-Type']
 			conteudo = consulta.body
 
 			if(html.ehHTML contentType)
 				if(html.possuiElemento(conteudo,"form"))
-					tokensGerados = listaDeTokens.gerarTokens(
-						html.numeroDeFormularios(conteudo),
-						dataHoraAtual.emMinutos,host
-					)
-					documentoHTML = html.insereInputNosFormularios(
-						conteudo,
-						tokensGerados
-					)
+					tokensGerados = listaDeTokens.gerarTokens(html.numeroDeFormularios(conteudo),dataHoraAtual.emMinutos,host)
+					documentoHTML = html.insereInputNosFormularios(conteudo,tokensGerados)
 		 			conteudo = html.geraHtmlRetorno(documentoHTML)
 				end	
 			end	

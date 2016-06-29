@@ -2,7 +2,7 @@
 require_relative "guardianOfRequests.rb"
 
 options = Hash.new
-options[:tempoMaxToken] = 15
+options[:tempoMaxToken] = 1
 options[:bind] = '127.0.0.1'
 options[:port] = 4999
 options[:server] = :webrick
